@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include "RedBlackTree.h"
+#include "FileManager.h"
+#include "Menu.h"
 
 using namespace std;
 
@@ -14,12 +16,14 @@ void displayMenu() {
     cout << "5. Display Stocks (Inorder)\n";
     cout << "6. Save to File\n";
     cout << "7. Load from File\n";
-    cout << "8. Exit\n";
+    cout << "8. Display Tree Structure\n";
+    cout << "9. Exit\n";
     cout << "Enter your choice: ";
 }
 
 int main() {
     RedBlackTree stockTree;
+    FileManager fileManager;
     int choice;
     string stockSymbol;
     double stockPrice;
@@ -65,16 +69,21 @@ int main() {
                 break;
 
             case 6:
-                stockTree.saveToFile("data/stocks_data.txt");
+                fileManager.saveToFile("data/stocks_data.txt", stockTree);
                 cout << "Stock data saved successfully!\n";
                 break;
 
             case 7:
-                stockTree.loadFromFile("data/stocks_data.txt");
+                fileManager.loadFromFile("data/stocks_data.txt", stockTree);
                 cout << "Stock data loaded successfully!\n";
                 break;
-
+            
             case 8:
+                cout << "Displaying Red-Black Tree structure:\n";
+                stockTree.displayTreeStructure();
+                break;
+
+            case 9:
                 cout << "Exiting program. Goodbye!\n";
                 return 0;
 
