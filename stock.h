@@ -3,31 +3,40 @@
 
 #include <iostream>
 #include <string>
-
 using namespace std;
 
 class Stock {
 private:
-    string symbol;  // Stock symbol (e.g., AAPL, TSLA)
-    double price;   // Stock price
+    string symbol;
+    double price;
+    int quantity;
+    string companyName;
+    string sector;
 
 public:
-    // Constructors
-    Stock();
-    Stock(string symbol, double price);
+    // Constructor
+    Stock(string sym, double pr, int qty, string name, string sec)
+        : symbol(sym), price(pr), quantity(qty), companyName(name), sector(sec) {}
 
-    // Getters and Setters
-    string getSymbol() const;
-    double getPrice() const;
-    void setPrice(double newPrice);
+    // Getters
+    string getSymbol() const { return symbol; }
+    double getPrice() const { return price; }
+    int getQuantity() const { return quantity; }
+    string getCompanyName() const { return companyName; }
+    string getSector() const { return sector; }
 
-    // Display stock details
-    void displayStock() const;
+    // Setters
+    void setPrice(double pr) { price = pr; }
+    void setQuantity(int qty) { quantity = qty; }
+    void setCompanyName(string name) { companyName = name; }
+    void setSector(string sec) { sector = sec; }
 
-    // Overload comparison operators (for Red-Black Tree)
-    bool operator<(const Stock& other) const;
-    bool operator>(const Stock& other) const;
-    bool operator==(const Stock& other) const;
+    // Display stock information
+    void displayStock() const {
+        cout << "Stock: " << symbol << " | Company: " << companyName 
+             << " | Sector: " << sector << " | Price: $" << price
+             << " | Quantity: " << quantity << endl;
+    }
 };
 
-#endif
+#endif // STOCK_H
