@@ -54,9 +54,9 @@ public:
 
     // Core operations
     void insert(string symbol, double price);
-    void remove(string symbol); // (You should implement this if not yet done)
+    void remove(string symbol);
     void searchStock(string symbol);
-    void updateStockPrice(string symbol, double price); // (You should implement this if not yet done)
+    void updateStockPrice(string symbol, double price);
     Node* search(string symbol); // Returns pointer to node
     Node* getRoot() const;
 
@@ -64,10 +64,11 @@ public:
     void display() const;
     void displayInOrder();
     void printTree(); // Print tree structure (debug)
+    void displayTreeStructure() { printTree(); }
 
     // File operations
     void saveToFile(string filename);
-    void loadFromFile(string filename); // (Make sure it's implemented in cpp)
+    void loadFromFile(string filename);
 
     // Statistics
     int getTotalStocks();
