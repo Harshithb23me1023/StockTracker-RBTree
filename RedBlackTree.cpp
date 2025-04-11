@@ -175,7 +175,7 @@ void RedBlackTree::printTreeHelper(Node* node, string indent, bool last) const {
     }
 }
 
-void RedBlackTree::saveToFile(const string& filename) const {
+void RedBlackTree::saveToFile(string filename) const {
     ofstream file(filename);
     if (file.is_open()) {
         saveHelper(root, file);
