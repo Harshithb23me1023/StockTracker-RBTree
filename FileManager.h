@@ -3,27 +3,22 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
-#include "Stock.h"
+#include "RedBlackTree.h"
 
 using namespace std;
 
 class FileManager {
 public:
-    FileManager();
-    ~FileManager();
+    FileManager() {}
     
-    bool saveToFile(const string& filename, const vector<Stock>& stocks);
-    bool loadFromFile(const string& filename, vector<Stock>& stocks);
+    void saveToFile(const string& filename, RedBlackTree& tree);
+    void loadFromFile(const string& filename, RedBlackTree& tree);
     bool fileExists(const string& filename);
-    void clearFile(const string& filename);
-    
-    void printFileContents(const string& filename);
-    bool validateFileFormat(const string& filename);
-    void logError(const string& errorMessage);
     
 private:
-    void createBackup(const string& filename);
+    void logError(const string& errorMessage);
 };
 
 #endif // FILEMANAGER_H
