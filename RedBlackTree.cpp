@@ -1,18 +1,26 @@
 #include "RedBlackTree.h"
+#include <fstream>
 
-// Constructor
 RedBlackTree::RedBlackTree() {
-    NIL = new Node("", 0);
+    NIL = new Node("", 0.0);
     NIL->color = BLACK;
+    NIL->left = NIL->right = NIL->parent = NIL;
     root = NIL;
 }
 
-// Destructor
 RedBlackTree::~RedBlackTree() {
     deleteTree(root);
+    delete NIL;
 }
 
-// Insert stock
+void RedBlackTree::deleteTree(Node* node) {
+    if (node != NIL) {
+        deleteTree(node->left);
+        deleteTree(node->right);
+        delete node;
+    }
+}
+
 void RedBlackTree::insert(string symbol, double price) {
     Node* newNode = new Node(symbol, price);
     Node* parent = nullptr;
@@ -25,44 +33,110 @@ void RedBlackTree::insert(string symbol, double price) {
         else if (symbol > current->stockSymbol)
             current = current->right;
         else {
+            // Update existing stock
             current->stockPrice = price;
+            delete newNode;
             return;
         }
     }
 
     newNode->parent = parent;
-    if (parent == nullptr)
+    if (parent == nullptr) {
         root = newNode;
-    else if (symbol < parent->stockSymbol)
+    } else if (symbol < parent->stockSymbol) {
         parent->left = newNode;
-    else
+    } else {
         parent->right = newNode;
+    }
 
     newNode->left = NIL;
     newNode->right = NIL;
     newNode->color = RED;
 
-    fixInsert(root, newNode);
+    fixInsert(newNode);
 }
 
-// Search for a stock
-void RedBlackTree::searchStock(string symbol) {
-    Node* current = root;
-    while (current != NIL) {
-        if (symbol == current->stockSymbol) {
-            cout << "Stock Found: " << symbol << " - $" << current->stockPrice << "\n";
-            return;
-        } else if (symbol < current->stockSymbol) {
-            current = current->left;
+void RedBlackTree::fixInsert(Node* node) {
+    while (node != root && node->parent->color == RED) {
+        if (node->parent == node->parent->parent->left) {
+            Node* uncle = node->parent->parent->right;
+            if (uncle->color == RED) {
+                node->parent->color = BLACK;
+                uncle->color = BLACK;
+                node->parent->parent->color = RED;
+                node = node->parent->parent;
+            } else {
+                if (node == node->parent->right) {
+                    node = node->parent;
+                    rotateLeft(node);
+                }
+                node->parent->color = BLACK;
+                node->parent->parent->color = RED;
+                rotateRight(node->parent->parent);
+            }
         } else {
-            current = current->right;
+            // Mirror case
+            Node* uncle = node->parent->parent->left;
+            if (uncle->color == RED) {
+                node->parent->color = BLACK;
+                uncle->color = BLACK;
+                node->parent->parent->color = RED;
+                node = node->parent->parent;
+            } else {
+                if (node == node->parent->left) {
+                    node = node->parent;
+                    rotateRight(node);
+                }
+                node->parent->color = BLACK;
+                node->parent->parent->color = RED;
+                rotateLeft(node->parent->parent);
+            }
         }
     }
-    cout << "Stock Not Found.\n";
+    root->color = BLACK;
 }
 
-// ✅ New: Search method returning Node*
-Node* RedBlackTree::search(string symbol) {
+void RedBlackTree::rotateLeft(Node* node) {
+    Node* rightChild = node->right;
+    node->right = rightChild->left;
+    
+    if (rightChild->left != NIL)
+        rightChild->left->parent = node;
+        
+    rightChild->parent = node->parent;
+    
+    if (node->parent == nullptr)
+        root = rightChild;
+    else if (node == node->parent->left)
+        node->parent->left = rightChild;
+    else
+        node->parent->right = rightChild;
+        
+    rightChild->left = node;
+    node->parent = rightChild;
+}
+
+void RedBlackTree::rotateRight(Node* node) {
+    Node* leftChild = node->left;
+    node->left = leftChild->right;
+    
+    if (leftChild->right != NIL)
+        leftChild->right->parent = node;
+        
+    leftChild->parent = node->parent;
+    
+    if (node->parent == nullptr)
+        root = leftChild;
+    else if (node == node->parent->right)
+        node->parent->right = leftChild;
+    else
+        node->parent->left = leftChild;
+        
+    leftChild->right = node;
+    node->parent = leftChild;
+}
+
+Node* RedBlackTree::search(string symbol) const {
     Node* current = root;
     while (current != NIL) {
         if (symbol == current->stockSymbol)
@@ -75,54 +149,15 @@ Node* RedBlackTree::search(string symbol) {
     return nullptr;
 }
 
-// ✅ New: Return root
-Node* RedBlackTree::getRoot() const {
-    return root;
-}
-
-// ✅ New: Simple display method
-void RedBlackTree::display() const {
-    inorderTraversal(root);
-}
-
-// Display Inorder (sorted order)
-void RedBlackTree::displayInOrder() {
-    inorderTraversal(root);
-}
-
-// Inorder Traversal Helper
-void RedBlackTree::inorderTraversal(Node* node) {
+void RedBlackTree::inorderHelper(Node* node) const {
     if (node != NIL) {
-        inorderTraversal(node->left);
-        cout << node->stockSymbol << " - $" << node->stockPrice << "\n";
-        inorderTraversal(node->right);
+        inorderHelper(node->left);
+        cout << node->stockSymbol << ": $" << node->stockPrice << endl;
+        inorderHelper(node->right);
     }
 }
 
-// Save to file
-void RedBlackTree::saveToFile(string filename) {
-    ofstream file(filename);
-    if (file.is_open()) {
-        saveToFileHelper(root, file);
-        file.close();
-    }
-}
-
-// Save to file helper
-void RedBlackTree::saveToFileHelper(Node* node, ofstream& file) {
-    if (node != NIL) {
-        file << node->stockSymbol << " " << node->stockPrice << "\n";
-        saveToFileHelper(node->left, file);
-        saveToFileHelper(node->right, file);
-    }
-}
-
-// Additional utility functions added for debugging
-void RedBlackTree::printTree() {
-    printHelper(root, "", true);
-}
-
-void RedBlackTree::printHelper(Node* node, string indent, bool last) {
+void RedBlackTree::printTreeHelper(Node* node, string indent, bool last) const {
     if (node != NIL) {
         cout << indent;
         if (last) {
@@ -132,86 +167,26 @@ void RedBlackTree::printHelper(Node* node, string indent, bool last) {
             cout << "L----";
             indent += "|  ";
         }
+        
         string color = node->color == RED ? "RED" : "BLACK";
-        cout << node->stockSymbol << "(" << color << ")\n";
-        printHelper(node->left, indent, false);
-        printHelper(node->right, indent, true);
+        cout << node->stockSymbol << "(" << color << ")" << endl;
+        printTreeHelper(node->left, indent, false);
+        printTreeHelper(node->right, indent, true);
     }
 }
 
-// New function to count the total number of stocks
-int RedBlackTree::countStocks(Node* node) {
-    if (node == NIL)
-        return 0;
-    return 1 + countStocks(node->left) + countStocks(node->right);
-}
-
-int RedBlackTree::getTotalStocks() {
-    return countStocks(root);
-}
-
-// Enhanced debugging function to check the tree structure
-void RedBlackTree::validateRBTree() {
-    if (root->color != BLACK) {
-        cout << "Error: Root is not black!\n";
+void RedBlackTree::saveToFile(const string& filename) const {
+    ofstream file(filename);
+    if (file.is_open()) {
+        saveHelper(root, file);
+        file.close();
     }
-    validateNode(root);
 }
 
-void RedBlackTree::validateNode(Node* node) {
-    if (node == NIL)
-        return;
-    if (node->color == RED) {
-        if (node->left->color == RED || node->right->color == RED) {
-            cout << "Error: Red node " << node->stockSymbol << " has red children!\n";
-        }
+void RedBlackTree::saveHelper(Node* node, ofstream& file) const {
+    if (node != NIL) {
+        file << node->stockSymbol << " " << node->stockPrice << "\n";
+        saveHelper(node->left, file);
+        saveHelper(node->right, file);
     }
-    validateNode(node->left);
-    validateNode(node->right);
-}
-
-// New function to find the stock with the highest price
-Node* RedBlackTree::findMaxStock(Node* node) {
-    while (node->right != NIL)
-        node = node->right;
-    return node;
-}
-
-Node* RedBlackTree::getMaxStock() {
-    return findMaxStock(root);
-}
-
-// New function to find the stock with the lowest price
-Node* RedBlackTree::findMinStock(Node* node) {
-    while (node->left != NIL)
-        node = node->left;
-    return node;
-}
-
-Node* RedBlackTree::getMinStock() {
-    return findMinStock(root);
-}
-
-// New function to calculate the total stock value
-double RedBlackTree::calculateTotalStockValue(Node* node) {
-    if (node == NIL)
-        return 0;
-    return node->stockPrice + calculateTotalStockValue(node->left) + calculateTotalStockValue(node->right);
-}
-
-double RedBlackTree::getTotalStockValue() {
-    return calculateTotalStockValue(root);
-}
-
-// New function to calculate the average stock price
-double RedBlackTree::calculateAverageStockPrice() {
-    int totalStocks = getTotalStocks();
-    return totalStocks == 0 ? 0 : getTotalStockValue() / totalStocks;
-}
-
-// New function to display stock statistics
-void RedBlackTree::displayStockStatistics() {
-    cout << "Total Stocks: " << getTotalStocks() << "\n";
-    cout << "Total Stock Value: $" << getTotalStockValue() << "\n";
-    cout << "Average Stock Price: $" << calculateAverageStockPrice() << "\n";
 }
