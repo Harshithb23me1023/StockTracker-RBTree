@@ -3,62 +3,56 @@
 using namespace std;
 
 // Constructor
-Stock::Stock(string symbol, double price, string name, string sector) {
+Stock::Stock(string symbol, double price, string name, string sec) {
     stockSymbol = symbol;
     stockPrice = price;
     companyName = name;
-    this->sector = sector;
+    sector = sec;
 }
 
-// Getter for stock symbol
+// Getters
 string Stock::getStockSymbol() {
     return stockSymbol;
 }
 
-// Getter for stock price
 double Stock::getStockPrice() {
     return stockPrice;
 }
 
-// Getter for company name
-string Stock::getCompanyName() {
+string Stock::getCompanyName() const {
     return companyName;
 }
 
-// Getter for sector
-string Stock::getSector() {
+string Stock::getSector() const {
     return sector;
 }
 
-// Setter for stock price
+// Setters
 void Stock::setStockPrice(double price) {
     stockPrice = price;
 }
 
-// Setter for company name
 void Stock::setCompanyName(string name) {
     companyName = name;
 }
 
-// Setter for sector
-void Stock::setSector(string sector) {
-    this->sector = sector;
+void Stock::setSector(string sec) {
+    sector = sec;
 }
 
-// Display stock details
-void Stock::displayStock() {
+// Display
+void Stock::displayStock() const {
     cout << "Stock Symbol: " << stockSymbol << "\n";
     cout << "Company Name: " << companyName << "\n";
     cout << "Sector: " << sector << "\n";
     cout << "Stock Price: $" << stockPrice << "\n";
 }
 
-// Function to compare two stocks based on price
+// Comparison
 bool Stock::compareStock(Stock otherStock) {
     return this->stockPrice > otherStock.getStockPrice();
 }
 
-// Function to check if stock belongs to a sector
-bool Stock::isSector(string sector) {
-    return this->sector == sector;
+bool Stock::isSector(string sec) {
+    return this->sector == sec;
 }
