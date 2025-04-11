@@ -41,29 +41,44 @@ private:
     void deleteTree(Node* node);
     void saveToFileHelper(Node* node, ofstream& file);
     void loadFromFileHelper(ifstream& file);
+    void printHelper(Node* node, string indent, bool last);
+    void validateNode(Node* node);
+    int countStocks(Node* node);
+    Node* findMaxStock(Node* node);
+    Node* findMinStock(Node* node);
+    double calculateTotalStockValue(Node* node);
 
-    // Additional helper functions
-    void printTreeStructure(Node* node, string indent, bool last); // Debug function
-    int countNodes(Node* node); // Count total nodes in the tree
-    int getTreeHeight(Node* node); // Get height of the tree
-    Node* findMaxValueNode(Node* node); // Find maximum value node
-    
 public:
     RedBlackTree();
     ~RedBlackTree();
-    void insert(string symbol, double price);
-    void remove(string symbol);
-    void searchStock(string symbol);
-    void updateStockPrice(string symbol, double price);
-    void displayInOrder();
-    void saveToFile(string filename);
-    void loadFromFile(string filename);
 
-    // Public utility functions
-    void printTree(); // Print tree structure for debugging
-    int getTotalStocks(); // Get total number of stocks in the tree
-    int getHeight(); // Get height of the Red-Black Tree
-    string getMaxStock(); // Get stock with the highest value
+    // Core operations
+    void insert(string symbol, double price);
+    void remove(string symbol); // (You should implement this if not yet done)
+    void searchStock(string symbol);
+    void updateStockPrice(string symbol, double price); // (You should implement this if not yet done)
+    Node* search(string symbol); // Returns pointer to node
+    Node* getRoot() const;
+
+    // Display
+    void display() const;
+    void displayInOrder();
+    void printTree(); // Print tree structure (debug)
+
+    // File operations
+    void saveToFile(string filename);
+    void loadFromFile(string filename); // (Make sure it's implemented in cpp)
+
+    // Statistics
+    int getTotalStocks();
+    double getTotalStockValue();
+    double calculateAverageStockPrice();
+    void displayStockStatistics();
+    Node* getMaxStock();
+    Node* getMinStock();
+
+    // Tree integrity
+    void validateRBTree();
 };
 
 #endif
