@@ -6,7 +6,6 @@
 
 using namespace std;
 
-// Function to display the menu
 void displayMenu() {
     cout << "\n===== Stock Market Management System (RB-Tree) =====\n";
     cout << "1. Insert Stock\n";
