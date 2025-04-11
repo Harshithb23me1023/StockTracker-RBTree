@@ -7,10 +7,8 @@
 
 using namespace std;
 
-// Enum for node color in Red-Black Tree
 enum Color { RED, BLACK };
 
-// Node structure for the Red-Black Tree
 struct Node {
     string stockSymbol;
     double stockPrice;
@@ -37,49 +35,43 @@ private:
     void fixInsert(Node*& root, Node*& node);
     void fixDelete(Node*& root, Node*& node);
     Node* minValueNode(Node* node);
-    void inorderTraversal(Node* node);
+    void inorderTraversal(Node* node) const;
     void deleteTree(Node* node);
-    void saveToFileHelper(Node* node, ofstream& file);
-    void loadFromFileHelper(ifstream& file);
-    void printHelper(Node* node, string indent, bool last);
-    void validateNode(Node* node);
-    int countStocks(Node* node);
-    Node* findMaxStock(Node* node);
-    Node* findMinStock(Node* node);
-    double calculateTotalStockValue(Node* node);
+    void saveToFileHelper(Node* node, ofstream& file) const;
+    void printHelper(Node* node, string indent, bool last) const;
+    void validateNode(Node* node) const;
+    int countStocks(Node* node) const;
+    Node* findMaxStock(Node* node) const;
+    Node* findMinStock(Node* node) const;
+    double calculateTotalStockValue(Node* node) const;
 
 public:
     RedBlackTree();
     ~RedBlackTree();
 
-    // Core operations
     void insert(string symbol, double price);
     void remove(string symbol);
-    void searchStock(string symbol);
+    void searchStock(string symbol) const;
     void updateStockPrice(string symbol, double price);
-    Node* search(string symbol); // Returns pointer to node
+    Node* search(string symbol) const;
     Node* getRoot() const;
 
-    // Display
-    void display() const;
-    void displayInOrder();
-    void printTree(); // Print tree structure (debug)
-    void displayTreeStructure() { printTree(); }
+    void display() const { inorderTraversal(root); }
+    void displayInOrder() const { inorderTraversal(root); }
+    void printTree() const { printHelper(root, "", true); }
+    void displayTreeStructure() const { printTree(); }
 
-    // File operations
-    void saveToFile(string filename);
+    void saveToFile(string filename) const;
     void loadFromFile(string filename);
 
-    // Statistics
-    int getTotalStocks();
-    double getTotalStockValue();
-    double calculateAverageStockPrice();
-    void displayStockStatistics();
-    Node* getMaxStock();
-    Node* getMinStock();
+    int getTotalStocks() const { return countStocks(root); }
+    double getTotalStockValue() const { return calculateTotalStockValue(root); }
+    double calculateAverageStockPrice() const;
+    void displayStockStatistics() const;
+    Node* getMaxStock() const { return findMaxStock(root); }
+    Node* getMinStock() const { return findMinStock(root); }
 
-    // Tree integrity
-    void validateRBTree();
+    void validateRBTree() const;
 };
 
 #endif
