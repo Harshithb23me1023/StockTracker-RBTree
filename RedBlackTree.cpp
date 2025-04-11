@@ -61,6 +61,30 @@ void RedBlackTree::searchStock(string symbol) {
     cout << "Stock Not Found.\n";
 }
 
+// ✅ New: Search method returning Node*
+Node* RedBlackTree::search(string symbol) {
+    Node* current = root;
+    while (current != NIL) {
+        if (symbol == current->stockSymbol)
+            return current;
+        else if (symbol < current->stockSymbol)
+            current = current->left;
+        else
+            current = current->right;
+    }
+    return nullptr;
+}
+
+// ✅ New: Return root
+Node* RedBlackTree::getRoot() const {
+    return root;
+}
+
+// ✅ New: Simple display method
+void RedBlackTree::display() const {
+    inorderTraversal(root);
+}
+
 // Display Inorder (sorted order)
 void RedBlackTree::displayInOrder() {
     inorderTraversal(root);
