@@ -2,18 +2,23 @@
 #define MENU_H
 
 #include <iostream>
+#include "RedBlackTree.h"
+
 using namespace std;
 
 class Menu {
+private:
+    RedBlackTree& stockTree;
+
 public:
-    void displayMainMenu();
-    void handleUserInput();
-    void showStockOptions();
-    void showFileOptions();
-    void showStatisticsOptions();
-    void showHelpMenu();
-    void showSettingsMenu();
-    void exitProgram();
+    Menu(RedBlackTree& tree) : stockTree(tree) {}
+    void displayMenu();
+    void handleChoice(int choice);
+    void clearScreen();
+    void pauseScreen();
+    void displayHighestStock();
+    void displayLowestStock();
+    void extendedStockStatistics();
 };
 
 #endif // MENU_H
