@@ -1,121 +1,93 @@
-#include "Menu.h"
 #include <iostream>
-#include <limits>
+#include <string>
+#include "RedBlackTree.h"
+#include "FileManager.h"
+#include "Menu.h"
 
 using namespace std;
 
-// Constructor
-Menu::Menu(RedBlackTree& tree) : stockTree(tree) {}
+void displayMenu() {
+    cout << "\n===== Stock Market Management System (RB-Tree) =====\n";
+    cout << "1. Insert Stock\n";
+    cout << "2. Delete Stock\n";
+    cout << "3. Search Stock\n";
+    cout << "4. Update Stock Price\n";
+    cout << "5. Display Stocks (Inorder)\n";
+    cout << "6. Save to File\n";
+    cout << "7. Load from File\n";
+    cout << "8. Display Tree Structure\n";
+    cout << "9. Exit\n";
+    cout << "Enter your choice: ";
+}
 
-// Display main menu
-void Menu::displayMenu() {
+int main() {
+    RedBlackTree stockTree;
+    FileManager fileManager;
     int choice;
-    do {
-        cout << "\nStock Market System Menu" << endl;
-        cout << "1. Insert Stock" << endl;
-        cout << "2. Search Stock" << endl;
-        cout << "3. Display Stocks" << endl;
-        cout << "4. Save to File" << endl;
-        cout << "5. Load from File" << endl;
-        cout << "6. Display Stock Statistics" << endl;
-        cout << "7. Exit" << endl;
-        cout << "Enter your choice: ";
+    string stockSymbol;
+    double stockPrice;
+
+    while (true) {
+        displayMenu();
         cin >> choice;
 
-        while (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Invalid input! Please enter a number: ";
-            cin >> choice;
+        switch (choice) {
+            case 1:
+                cout << "Enter Stock Symbol (e.g., AAPL): ";
+                cin >> stockSymbol;
+                cout << "Enter Stock Price: ";
+                cin >> stockPrice;
+                stockTree.insert(stockSymbol, stockPrice);
+                cout << "Stock inserted successfully!\n";
+                break;
+
+            case 2:
+                cout << "Enter Stock Symbol to Delete: ";
+                cin >> stockSymbol;
+                stockTree.remove(stockSymbol);
+                cout << "Stock deleted (if found)!\n";
+                break;
+
+            case 3:
+                cout << "Enter Stock Symbol to Search: ";
+                cin >> stockSymbol;
+                stockTree.searchStock(stockSymbol);
+                break;
+
+            case 4:
+                cout << "Enter Stock Symbol to Update: ";
+                cin >> stockSymbol;
+                cout << "Enter New Stock Price: ";
+                cin >> stockPrice;
+                stockTree.updateStockPrice(stockSymbol, stockPrice);
+                break;
+
+            case 5:
+                cout << "\nStock List (Inorder Traversal):\n";
+                stockTree.displayInOrder();
+                break;
+
+            case 6:
+                fileManager.saveToFile("data/stocks_data.txt", stockTree);
+                cout << "Stock data saved successfully!\n";
+                break;
+
+            case 7:
+                fileManager.loadFromFile("data/stocks_data.txt", stockTree);
+                cout << "Stock data loaded successfully!\n";
+                break;
+            
+            case 8:
+                cout << "Displaying Red-Black Tree structure:\n";
+                stockTree.displayTreeStructure();
+                break;
+
+            case 9:
+                cout << "Exiting program. Goodbye!\n";
+                return 0;
+
+            default:
+                cout << "Invalid choice! Please try again.\n";
         }
-
-        handleChoice(choice);
-    } while (choice != 7);
-}
-
-// Handle user choices
-void Menu::handleChoice(int choice) {
-    string symbol;
-    double price;
-    string filename;
-
-    switch (choice) {
-        case 1:
-            cout << "Enter stock symbol: ";
-            cin >> symbol;
-            cout << "Enter stock price: ";
-            cin >> price;
-            stockTree.insert(symbol, price);
-            cout << "Stock inserted successfully." << endl;
-            break;
-        case 2:
-            cout << "Enter stock symbol to search: ";
-            cin >> symbol;
-            stockTree.searchStock(symbol);
-            break;
-        case 3:
-            cout << "Stock List (Inorder):" << endl;
-            stockTree.displayInOrder();
-            break;
-        case 4:
-            cout << "Enter filename to save: ";
-            cin >> filename;
-            stockTree.saveToFile(filename);
-            cout << "Stock data saved successfully." << endl;
-            break;
-        case 5:
-            cout << "Enter filename to load: ";
-            cin >> filename;
-            stockTree.loadFromFile(filename);
-            cout << "Stock data loaded successfully." << endl;
-            break;
-        case 6:
-            stockTree.displayStockStatistics();
-            break;
-        case 7:
-            cout << "Exiting the program..." << endl;
-            break;
-        default:
-            cout << "Invalid choice! Please try again." << endl;
     }
-}
-
-// Function to clear the screen
-void Menu::clearScreen() {
-    cout << string(50, '\n');
-}
-
-// Function to pause the screen
-void Menu::pauseScreen() {
-    cout << "Press Enter to continue...";
-    cin.ignore();
-    cin.get();
-}
-
-// Function to display stock with highest price
-void Menu::displayHighestStock() {
-    Node* maxStock = stockTree.getMaxStock();
-    if (maxStock)
-        cout << "Highest Stock: " << maxStock->stockSymbol << " - $" << maxStock->stockPrice << endl;
-    else
-        cout << "No stocks available." << endl;
-}
-
-// Function to display stock with lowest price
-void Menu::displayLowestStock() {
-    Node* minStock = stockTree.getMinStock();
-    if (minStock)
-        cout << "Lowest Stock: " << minStock->stockSymbol << " - $" << minStock->stockPrice << endl;
-    else
-        cout << "No stocks available." << endl;
-}
-
-// Extended statistics display
-void Menu::extendedStockStatistics() {
-    cout << "Stock Market Statistics" << endl;
-    cout << "----------------------------" << endl;
-    displayHighestStock();
-    displayLowestStock();
-    cout << "----------------------------" << endl;
-    stockTree.displayStockStatistics();
 }
