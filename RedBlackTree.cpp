@@ -13,12 +13,46 @@ RedBlackTree::~RedBlackTree() {
     delete NIL;
 }
 
-void RedBlackTree::deleteTree(Node* node) {
-    if (node != NIL) {
-        deleteTree(node->left);
-        deleteTree(node->right);
-        delete node;
+void RedBlackTree::deleteNode(Node* node, const string& symbol) {
+    Node* z = NIL;
+    Node* x, *y;
+    while (node != NIL) {
+        if (node->stockSymbol == symbol)
+            z = node;
+        node = (symbol < node->stockSymbol) ? node->left : node->right;
     }
+
+    if (z == NIL) return;
+
+    y = z;
+    Color yOriginalColor = y->color;
+    if (z->left == NIL) {
+        x = z->right;
+        transplant(z, z->right);
+    } else if (z->right == NIL) {
+        x = z->left;
+        transplant(z, z->left);
+    } else {
+        y = minimum(z->right);
+        yOriginalColor = y->color;
+        x = y->right;
+        if (y->parent == z)
+            x->parent = y;
+        else {
+            transplant(y, y->right);
+            y->right = z->right;
+            y->right->parent = y;
+        }
+
+        transplant(z, y);
+        y->left = z->left;
+        y->left->parent = y;
+        y->color = z->color;
+    }
+
+    delete z;
+    if (yOriginalColor == BLACK)
+        fixDelete(x);
 }
 
 void RedBlackTree::insert(string symbol, double price) {
@@ -49,13 +83,30 @@ void RedBlackTree::insert(string symbol, double price) {
         parent->right = newNode;
     }
 
-    newNode->left = NIL;
-    newNode->right = NIL;
-    newNode->color = RED;
+       // Rest of insert logic...
+       newNode->left = NIL;
+       newNode->right = NIL;
+       newNode->color = RED;
+   
+       fixInsert(newNode); // <-- Fix the tree after insert
+   }
+   
 
-    fixInsert(newNode);
+void RedBlackTree::loadFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file.\n";
+        return;
+    }
+
+    std::string symbol;
+    double price;
+    while (file >> symbol >> price) {
+        insert(symbol, price);
+    }
+
+    file.close();
 }
-
 void RedBlackTree::fixInsert(Node* node) {
     while (node != root && node->parent->color == RED) {
         if (node->parent == node->parent->parent->left) {
@@ -175,18 +226,158 @@ void RedBlackTree::printTreeHelper(Node* node, string indent, bool last) const {
     }
 }
 
-void RedBlackTree::saveToFile(string filename) const {
-    ofstream file(filename);
+
+void RedBlackTree::saveToFile(const string& filename) const {
+    ofstream file(filename, ios::trunc); // trunc clears existing
     if (file.is_open()) {
         saveHelper(root, file);
         file.close();
+    } else {
+        cerr << "Failed to open file for writing.\n";
     }
 }
 
-void RedBlackTree::saveHelper(Node* node, ofstream& file) const {
+
+void RedBlackTree::saveHelper(Node* node, std::ofstream& file) const {
     if (node != NIL) {
         file << node->stockSymbol << " " << node->stockPrice << "\n";
         saveHelper(node->left, file);
         saveHelper(node->right, file);
     }
 }
+
+void RedBlackTree::remove(string symbol) {
+    Node* node = search(symbol);
+    if (node == nullptr || node == NIL) {
+        cout << "Stock not found.\n";
+        return;
+    }
+    deleteNode(root, symbol);
+}
+
+void RedBlackTree::searchStock(string stockSymbol) {
+    Node* current = root;
+    while (current != nullptr) {
+        if (stockSymbol == current->stockSymbol) {
+            cout << "Stock found: " << stockSymbol << " - Price: $" << current->stockPrice << endl;
+            return;
+        } else if (stockSymbol < current->stockSymbol) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+    cout << "Stock not found: " << stockSymbol << endl;
+}
+
+void RedBlackTree::updateStockPrice(string stockSymbol, double newPrice) {
+    Node* current = root;
+    while (current != nullptr) {
+        if (stockSymbol == current->stockSymbol) {
+            current->stockPrice = newPrice;
+            cout << "Stock price updated for " << stockSymbol << ": $" << newPrice << endl;
+            return;
+        } else if (stockSymbol < current->stockSymbol) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+    cout << "Stock not found to update: " << stockSymbol << endl;
+}
+
+void RedBlackTree::displayInOrder() const {
+
+    
+    inorderHelper(root);
+    cout << endl;
+}
+
+void RedBlackTree::displayTreeStructure() const {
+    printTreeHelper(root, "", true);
+}
+
+void RedBlackTree::deleteTree(Node* node) {
+    if (node != NIL) {
+        deleteTree(node->left);
+        deleteTree(node->right);
+        delete node;
+    }
+}
+
+void RedBlackTree::transplant(Node* u, Node* v) {
+    if (u->parent == nullptr)
+        root = v;
+    else if (u == u->parent->left)
+        u->parent->left = v;
+    else
+        u->parent->right = v;
+    v->parent = u->parent;
+}
+
+Node* RedBlackTree::minimum(Node* node) const {
+    while (node->left != NIL)
+        node = node->left;
+    return node;
+}
+
+void RedBlackTree::fixDelete(Node* x) {
+    Node* s;
+    while (x != root && x->color == BLACK) {
+        if (x == x->parent->left) {
+            s = x->parent->right;
+            if (s->color == RED) {
+                s->color = BLACK;
+                x->parent->color = RED;
+                rotateLeft(x->parent);
+                s = x->parent->right;
+            }
+
+            if (s->left->color == BLACK && s->right->color == BLACK) {
+                s->color = RED;
+                x = x->parent;
+            } else {
+                if (s->right->color == BLACK) {
+                    s->left->color = BLACK;
+                    s->color = RED;
+                    rotateRight(s);
+                    s = x->parent->right;
+                }
+
+                s->color = x->parent->color;
+                x->parent->color = BLACK;
+                s->right->color = BLACK;
+                rotateLeft(x->parent);
+                x = root;
+            }
+        } else {
+            s = x->parent->left;
+            if (s->color == RED) {
+                s->color = BLACK;
+                x->parent->color = RED;
+                rotateRight(x->parent);
+                s = x->parent->left;
+            }
+
+            if (s->right->color == BLACK && s->left->color == BLACK) {
+                s->color = RED;
+                x = x->parent;
+            } else {
+                if (s->left->color == BLACK) {
+                    s->right->color = BLACK;
+                    s->color = RED;
+                    rotateLeft(s);
+                    s = x->parent->left;
+                }
+
+                s->color = x->parent->color;
+                x->parent->color = BLACK;
+                s->left->color = BLACK;
+                rotateRight(x->parent);
+                x = root;
+            }
+        }
+    }
+    x->color = BLACK;
+}
+
