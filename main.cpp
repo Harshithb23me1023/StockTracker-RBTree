@@ -38,7 +38,7 @@ int main() {
                 cout << "Enter Stock Price: ";
                 cin >> stockPrice;
                 stockTree.insert(stockSymbol, stockPrice);
-                cout << "Stock inserted successfully!\n";
+                cout << "Stock Inserted Successfully dont forhet to click 'Save File'!\n";
                 break;
 
             case 2:
