@@ -3,14 +3,9 @@
 #include <iostream>
 
 void FileManager::saveToFile(const string& filename, RedBlackTree& tree) {
-    ofstream file(filename);
-    if (file.is_open()) {
-        tree.saveToFile(filename);
-        file.close();
-    } else {
-        logError("Unable to open file for writing: " + filename);
-    }
+    tree.saveToFile(filename); // call internal function
 }
+
 
 void FileManager::loadFromFile(const string& filename, RedBlackTree& tree) {
     ifstream file(filename);
